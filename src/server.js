@@ -20,36 +20,22 @@ const init = async () => {
     },
   });
 
+  //custom error
   server.ext('onPreResponse', (request, h) => {
     const { response } = request;
-
-    if (response instanceof Error) {
-      if (response instanceof clientError) {
-        const newResponse = h.response({
-          status: 'fail',
-          message: response.message,
-        });
-        newResponse.code(response.statusCode);
-        return newResponse;
-      }
-
-      if (!response.isServer) {
-        return h.continue;
-      }
-      //server ERROR!
+    if (response instanceof clientError) {
       const newResponse = h.response({
-        status: 'error',
-        message: 'terjadi kegagalan pada server kami',
+        status: 'fail',
+        message: response.message,
       });
-      newResponse.code(500);
+      newResponse.code(response.statusCode);
       return newResponse;
     }
-
     return h.continue;
   });
 
   await server.start();
-  console.log('Server running on %s', server.info.uri);
+  console.log('Server running on', server.info.uri);
 };
 
 init();

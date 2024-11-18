@@ -6,7 +6,7 @@ class AlbumsService {
     this._albums = [];
   }
   addAlbum({ name, year }) {
-    const id = nanoid(16);
+    const id = `album-${nanoid(16)}`;
     const newNote = { id, name, year };
     this._albums.push(newNote);
     const isSuccess =
