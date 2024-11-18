@@ -7,8 +7,8 @@ class AlbumsService {
   }
   addAlbum({ name, year }) {
     const id = `album-${nanoid(16)}`;
-    const newNote = { id, name, year };
-    this._albums.push(newNote);
+    const newAlbum = { id, name, year };
+    this._albums.push(newAlbum);
     const isSuccess =
       this._albums.filter((album) => album.id === id).length > 0;
     if (!isSuccess) {
@@ -16,11 +16,6 @@ class AlbumsService {
     }
     return id;
   }
-
-  getAlbums() {
-    return this._albums;
-  }
-
   getAlbumById(id) {
     const album = this._albums.filter((album) => album.id === id)[0];
     if (!album) {
