@@ -86,7 +86,6 @@ class SongsService {
     if (conditions.length > 0) {
       baseQuery += ` WHERE ${conditions.join(' AND ')}`;
     }
-    console.log(baseQuery);
 
     const query = {
       text: baseQuery,
