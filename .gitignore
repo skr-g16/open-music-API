@@ -1,8 +1,6 @@
 .env
 .prod.env
 .prettierrc
-eslint.config.mjs
 
 node_modules
 package-lock.json
-open-music-api.zip
