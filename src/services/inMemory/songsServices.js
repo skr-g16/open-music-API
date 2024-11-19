@@ -23,7 +23,6 @@ class songsServices {
     if (!isSuccess) {
       throw new invariantError('Lagu gagal ditambahkan');
     }
-    console.log(this._songs);
     return id;
   }
 
@@ -65,6 +64,15 @@ class songsServices {
       throw new notFoundError('Lagu gagal dihapus. Id tidak ditemukan');
     }
     this._songs.splice(index, 1);
+  }
+  async getSongsByAlbumId(albumId) {
+    return this._songs
+      .filter((song) => song.albumId === albumId)
+      .map(({ id, title, performer }) => ({
+        id,
+        title,
+        performer,
+      }));
   }
 }
 
