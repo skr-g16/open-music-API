@@ -8,7 +8,7 @@ class songsHandler {
   }
 
   async postSongHandler(request, h) {
-    this._validator.validateSongPayload(request.payload);
+    this._validator.validateSongsPayload(request.payload);
     const { title, year, performer, genre, duration, albumId } =
       request.payload;
     const songId = await this._service.addSong({
@@ -45,7 +45,7 @@ class songsHandler {
   }
 
   async putSongByIdHandler(request) {
-    this._validator.validateSongPayload(request.payload);
+    this._validator.validateSongsPayload(request.payload);
     const { id } = request.params;
     await this._service.editSongById(id, request.payload);
     return { status: 'success', message: 'Lagu berhasil diperbarui' };
