@@ -8,5 +8,10 @@ const songsPayLoadSchema = joi.object({
   duration: joi.number(),
   albumId: joi.string(),
 });
+//opsional 2
+const songsQuerySchema = joi.object({
+  title: joi.string().min(1),
+  performer: joi.string().min(1),
+});
 
-module.exports = { songsPayLoadSchema };
+module.exports = { songsPayLoadSchema, songsQuerySchema };

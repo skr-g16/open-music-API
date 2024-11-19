@@ -66,6 +66,36 @@ class SongsService {
       throw new notFoundError('Lagu gagal dihapus. Id tidak ditemukan');
     }
   }
+
+  //opsional 2
+  async getSongsByTitleAndPerformer(title, performer) {
+    let baseQuery = 'SELECT id, title, performer FROM songs';
+    const queryParams = [];
+    const conditions = [];
+
+    if (title) {
+      conditions.push(`title ILIKE $${queryParams.length + 1}`);
+      queryParams.push(`%${title}%`);
+    }
+
+    if (performer) {
+      conditions.push(`performer ILIKE $${queryParams.length + 1}`);
+      queryParams.push(`%${performer}%`);
+    }
+
+    if (conditions.length > 0) {
+      baseQuery += ` WHERE ${conditions.join(' AND ')}`;
+    }
+    console.log(baseQuery);
+
+    const query = {
+      text: baseQuery,
+      values: queryParams,
+    };
+
+    const result = await this._pool.query(query);
+    return result.rows.map(mapDBtoModel);
+  }
 }
 
 module.exports = SongsService;
