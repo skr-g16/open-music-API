@@ -1,9 +1,9 @@
 const { Pool } = require('pg');
 const { nanoid } = require('nanoid');
-const invariantError = require('../../exceptions/invariantError');
-const notFoundError = require('../../exceptions/notFoundError');
+const InvariantError = require('../../exceptions/invariantError');
+const NotFoundError = require('../../exceptions/notFoundError');
 
-class albumsService {
+class AlbumsService {
   constructor() {
     this._pool = new Pool();
   }
@@ -16,7 +16,7 @@ class albumsService {
     };
     const result = await this._pool.query(query);
     if (!result.rows[0].id) {
-      throw new invariantError('Album gagal ditambahkan');
+      throw new InvariantError('Album gagal ditambahkan');
     }
     return result.rows[0].id;
   }
@@ -28,7 +28,7 @@ class albumsService {
     };
     const albumResult = await this._pool.query(albumsQuery);
     if (!albumResult.rows.length) {
-      throw new notFoundError('Album tidak ditemukan');
+      throw new NotFoundError('Album tidak ditemukan');
     }
     const album = albumResult.rows[0];
     const songsQuery = {
@@ -50,7 +50,7 @@ class albumsService {
     };
     const result = await this._pool.query(query);
     if (!result.rows.length) {
-      throw new notFoundError('Gagal memperbarui album. Id tidak ditemukan');
+      throw new NotFoundError('Gagal memperbarui album. Id tidak ditemukan');
     }
     return result.rows[0].id;
   }
@@ -62,8 +62,8 @@ class albumsService {
     };
     const result = await this._pool.query(query);
     if (!result.rows.length) {
-      throw new notFoundError('Album gagal dihapus. Id tidak ditemukan');
+      throw new NotFoundError('Album gagal dihapus. Id tidak ditemukan');
     }
   }
 }
-module.exports = albumsService;
+module.exports = AlbumsService;

@@ -4,6 +4,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node ./src/server.js",
+    "dev": "nodemon ./src/server.js",
     "lint": "eslint ./ ",
     "lint-fix": "eslint ./ --fix",
     "migrate": "node-pg-migrate"
@@ -14,6 +15,7 @@
   "description": "",
   "dependencies": {
     "@hapi/hapi": "^21.3.12",
+    "@hapi/jwt": "^3.2.0",
     "auto-bind": "^4.0.0",
     "bcrypt": "^5.1.1",
     "dotenv": "^16.4.5",
