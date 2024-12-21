@@ -1,4 +1,5 @@
 const Hapi = require('@hapi/hapi');
+const Jwt = require('@hapi/jwt');
 
 const AlbumsService = require('./services/postgres/albumsServices');
 const albums = require('./api/albums');
@@ -18,6 +19,11 @@ const AuthenticationsServices = require('./services/postgres/authenticationsServ
 const AuthenticationsValidator = require('./validator/authentications');
 const TokenManager = require('./tokenize/tokenManager');
 
+const playlists = require('./api/playlists');
+const PlaylistsServices = require('./services/postgres/playlistsServices');
+const PlaylistSongsServices = require('./services/postgres/playlistSongsServices');
+const PlaylistsValidator = require('./validator/playlists');
+
 require('dotenv').config();
 
 const init = async () => {
@@ -25,10 +31,35 @@ const init = async () => {
   const songsServices = new SongsServices();
   const usersServices = new UsersServices();
   const authenticationsServices = new AuthenticationsServices();
+  const playlistsServices = new PlaylistsServices();
+  const playlistSongsServices = new PlaylistSongsServices();
   const server = Hapi.server({
     port: process.env.PORT,
     host: process.env.HOST,
     routes: { cors: { origin: ['*'] } },
+  });
+
+  //register jwt
+  await server.register([
+    {
+      plugin: Jwt,
+    },
+  ]);
+  //define auth strategy
+  server.auth.strategy('openmusic_jwt', 'jwt', {
+    keys: process.env.ACCESS_TOKEN_KEY,
+    verify: {
+      aud: false,
+      iss: false,
+      sub: false,
+      maxAgeSec: process.env.ACCESS_TOKEN_AGE,
+    },
+    validate: (artifacts) => ({
+      isValid: true,
+      credentials: {
+        id: artifacts.decoded.payload.id,
+      },
+    }),
   });
 
   await server.register([
@@ -60,6 +91,14 @@ const init = async () => {
         usersServices,
         tokenManager: TokenManager,
         validator: AuthenticationsValidator,
+      },
+    },
+    {
+      plugin: playlists,
+      options: {
+        playlistsServices,
+        playlistSongsServices,
+        validator: PlaylistsValidator,
       },
     },
   ]);
