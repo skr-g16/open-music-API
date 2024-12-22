@@ -1,9 +1,15 @@
 const autoBind = require('auto-bind');
 
 class PlaylistsHandler {
-  constructor(playlistsServices, playlistSongsServices, validator) {
+  constructor(
+    playlistsServices,
+    playlistSongsServices,
+    playlistSongActivitesServices,
+    validator
+  ) {
     this._playlistsServices = playlistsServices;
     this._playlistSongsServices = playlistSongsServices;
+    this._playlistSongActivitesServices = playlistSongActivitesServices;
     this._validator = validator;
     autoBind(this);
   }
@@ -54,6 +60,12 @@ class PlaylistsHandler {
       credentialId
     );
     await this._playlistSongsServices.addSongToPlaylist(playlistId, songId);
+    await this._playlistSongActivitesServices.addActivity(
+      playlistId,
+      songId,
+      credentialId,
+      'add'
+    );
     const response = h.response({
       status: 'success',
       message: 'Lagu berhasil ditambahkan ke playlist',
@@ -92,9 +104,34 @@ class PlaylistsHandler {
       playlistId,
       songId
     );
+    await this._playlistSongActivitesServices.addActivity(
+      playlistId,
+      songId,
+      credentialId,
+      'delete'
+    );
     return {
       status: 'success',
       message: 'Lagu berhasil dihapus dari playlist',
+    };
+  }
+
+  async getPlaylistActivitiesHandler(request) {
+    const { id: playlistId } = request.params;
+    const { id: credentialId } = request.auth.credentials;
+    await this._playlistsServices.verifyPlaylistAccess(
+      playlistId,
+      credentialId
+    );
+    const activities = await this._playlistSongActivitesServices.getActvity(
+      playlistId
+    );
+    return {
+      status: 'success',
+      data: {
+        playlistId,
+        activities,
+      },
     };
   }
 }
