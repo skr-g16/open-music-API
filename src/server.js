@@ -29,6 +29,10 @@ const collaborations = require('./api/collaborations');
 const CollaborationsServices = require('./services/postgres/collaborationsServices');
 const CollaborationsValidator = require('./validator/collaborations');
 
+const _exports = require('./api/exports');
+const producerServices = require('./services/rabbitmq/producerServices');
+const ExportsValidator = require('./validator/exports');
+
 require('dotenv').config();
 
 const init = async () => {
@@ -45,7 +49,6 @@ const init = async () => {
     host: process.env.HOST,
     routes: { cors: { origin: ['*'] } },
   });
-
   //register jwt
   await server.register([
     {
@@ -117,17 +120,40 @@ const init = async () => {
         validator: CollaborationsValidator,
       },
     },
+    {
+      plugin: _exports,
+      options: {
+        producerService: producerServices,
+        playlistsServices,
+        validator: ExportsValidator,
+      },
+    },
   ]);
 
   //custom error
   server.ext('onPreResponse', (request, h) => {
     const { response } = request;
-    if (response instanceof clientError) {
+    if (response instanceof Error) {
+      if (response instanceof clientError) {
+        const newResponse = h.response({
+          status: 'fail',
+          message: response.message,
+        });
+        newResponse.code(response.statusCode);
+        return newResponse;
+      }
+
+      // mempertahankan penanganan client error oleh hapi secara native, seperti 404, etc.
+      if (!response.isServer) {
+        return h.continue;
+      }
+
+      // penanganan server error
       const newResponse = h.response({
-        status: 'fail',
-        message: response.message,
+        status: 'error',
+        message: 'terjadi kegagalan pada server kami',
       });
-      newResponse.code(response.statusCode);
+      newResponse.code(500);
       return newResponse;
     }
     return h.continue;
