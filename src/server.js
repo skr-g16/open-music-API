@@ -1,5 +1,6 @@
 const Hapi = require('@hapi/hapi');
 const Jwt = require('@hapi/jwt');
+const config = require('./utils/config');
 
 const AlbumsService = require('./services/postgres/albumsServices');
 const albums = require('./api/albums');
@@ -33,8 +34,6 @@ const _exports = require('./api/exports');
 const producerServices = require('./services/rabbitmq/producerServices');
 const ExportsValidator = require('./validator/exports');
 
-require('dotenv').config();
-
 const init = async () => {
   const albumsServices = new AlbumsService();
   const songsServices = new SongsServices();
@@ -45,8 +44,8 @@ const init = async () => {
   const playlistSongsServices = new PlaylistSongsServices();
   const playlistSongActivitesServices = new PlaylistSongActivitiesServices();
   const server = Hapi.server({
-    port: process.env.PORT,
-    host: process.env.HOST,
+    port: config.app.port,
+    host: config.app.host,
     routes: { cors: { origin: ['*'] } },
   });
   //register jwt
@@ -57,12 +56,12 @@ const init = async () => {
   ]);
   //define auth strategy
   server.auth.strategy('openmusic_jwt', 'jwt', {
-    keys: process.env.ACCESS_TOKEN_KEY,
+    keys: config.jwt.access_token_key,
     verify: {
       aud: false,
       iss: false,
       sub: false,
-      maxAgeSec: process.env.ACCESS_TOKEN_AGE,
+      maxAgeSec: config.jwt.access_token_age,
     },
     validate: (artifacts) => ({
       isValid: true,
