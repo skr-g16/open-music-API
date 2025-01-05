@@ -13,6 +13,9 @@ const config = {
     access_token_age: process.env.ACCESS_TOKEN_AGE,
     refresh_token_key: process.env.REFRESH_TOKEN_KEY,
   },
+  redis: {
+    host: process.env.REDIS_HOST,
+  },
 };
 
 module.exports = config;

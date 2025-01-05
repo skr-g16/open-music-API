@@ -71,10 +71,15 @@ class AlbumsHandler {
     return response;
   }
 
-  async getAlbumLikesHandler(request) {
+  async getAlbumLikesHandler(request, h) {
     const { id } = request.params;
-    const like = await this._service.getLikesAlbums(id);
-    return { status: 'success', data: { likes: like } };
+    const { source, likes } = await this._service.getLikesAlbums(id);
+    const response = h.response({
+      status: 'success',
+      data: { likes },
+    });
+    response.header('X-Data-Source', source);
+    return response;
   }
 
   async deleteAlbumLikeHandler(request) {

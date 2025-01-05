@@ -39,8 +39,10 @@ const ExportsValidator = require('./validator/exports');
 const uploadValidator = require('./validator/uploads');
 const LocalStorageServices = require('./services/localStorageServices/localStorageServices');
 
+const CacheServices = require('./services/redis/cacheServices');
 const init = async () => {
-  const albumsServices = new AlbumsService();
+  const cacheServices = new CacheServices();
+  const albumsServices = new AlbumsService(cacheServices);
   const songsServices = new SongsServices();
   const usersServices = new UsersServices();
   const authenticationsServices = new AuthenticationsServices();
