@@ -1,4 +1,6 @@
 const Hapi = require('@hapi/hapi');
+const path = require('path');
+const Inert = require('@hapi/inert');
 const Jwt = require('@hapi/jwt');
 const config = require('./utils/config');
 
@@ -34,6 +36,9 @@ const _exports = require('./api/exports');
 const producerServices = require('./services/rabbitmq/producerServices');
 const ExportsValidator = require('./validator/exports');
 
+const uploadValidator = require('./validator/uploads');
+const LocalStorageServices = require('./services/localStorageServices/localStorageServices');
+
 const init = async () => {
   const albumsServices = new AlbumsService();
   const songsServices = new SongsServices();
@@ -43,6 +48,9 @@ const init = async () => {
   const playlistsServices = new PlaylistsServices(collaborationsServices);
   const playlistSongsServices = new PlaylistSongsServices();
   const playlistSongActivitesServices = new PlaylistSongActivitiesServices();
+  const localStorageService = new LocalStorageServices(
+    path.resolve(__dirname, 'api/albums/file/images')
+  );
   const server = Hapi.server({
     port: config.app.port,
     host: config.app.host,
@@ -52,6 +60,9 @@ const init = async () => {
   await server.register([
     {
       plugin: Jwt,
+    },
+    {
+      plugin: Inert,
     },
   ]);
   //define auth strategy
@@ -76,7 +87,9 @@ const init = async () => {
       plugin: albums,
       options: {
         service: albumsServices,
+        localStorageService: localStorageService,
         validator: AlbumsValidator,
+        uploadValidator,
       },
     },
     {
@@ -132,29 +145,16 @@ const init = async () => {
   //custom error
   server.ext('onPreResponse', (request, h) => {
     const { response } = request;
-    if (response instanceof Error) {
-      if (response instanceof clientError) {
-        const newResponse = h.response({
-          status: 'fail',
-          message: response.message,
-        });
-        newResponse.code(response.statusCode);
-        return newResponse;
-      }
 
-      // mempertahankan penanganan client error oleh hapi secara native, seperti 404, etc.
-      if (!response.isServer) {
-        return h.continue;
-      }
-
-      // penanganan server error
+    if (response instanceof clientError) {
       const newResponse = h.response({
-        status: 'error',
-        message: 'terjadi kegagalan pada server kami',
+        status: 'fail',
+        message: response.message,
       });
-      newResponse.code(500);
+      newResponse.code(response.statusCode);
       return newResponse;
     }
+
     return h.continue;
   });
 
