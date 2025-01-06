@@ -75,6 +75,7 @@ class AlbumsHandler {
       status: 'success',
       message: 'Album berhasil disukai',
     });
+
     response.code(201);
     return response;
   }
