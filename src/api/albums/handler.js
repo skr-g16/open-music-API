@@ -78,7 +78,11 @@ class AlbumsHandler {
       status: 'success',
       data: { likes },
     });
-    response.header('X-Data-Source', source);
+    if (source === true) {
+      response.header('X-Data-Source', 'cache');
+    } else {
+      response.header('X-Data-Source', 'database');
+    }
     return response;
   }
 
