@@ -56,6 +56,14 @@ class AlbumsHandler {
       message: 'Sampul berhasil diunggah',
     });
     response.code(201);
+    if (!cover || !cover.hapi) {
+      const response = h.response({
+        status: 'fail',
+        message: 'Sampul gagal diunggah',
+      });
+      response.code(400);
+      return response;
+    }
     return response;
   }
 
